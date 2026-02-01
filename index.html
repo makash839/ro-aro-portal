@@ -3,67 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RO/ARO Real-Time Exam Portal</title>
+    <title>RO/ARO Protected Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        .hidden-all { display: none !important; }
+    </style>
 </head>
 <body class="bg-slate-50 font-sans">
-    <div id="loginSection" class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-blue-900">
-            <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">RO/ARO Exam Engine</h2>
-            <div class="space-y-4">
-                <select id="mainSubject" onchange="updateSubParts()" class="w-full p-3 border rounded-lg bg-slate-50 font-semibold"></select>
-                <div id="subPartContainer" class="hidden">
-                    <select id="subPart" class="w-full p-3 border rounded-lg bg-blue-50 font-semibold border-blue-200"></select>
+
+    <div id="passwordOverlay" class="fixed inset-0 bg-blue-900 flex items-center justify-center z-[100]">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+            <h2 class="text-xl font-bold mb-4">Security Check</h2>
+            <p class="text-sm text-gray-500 mb-4">Aage badhne ke liye password dalein</p>
+            <input type="password" id="sitePass" class="w-full p-3 border rounded-lg mb-4 text-center focus:outline-blue-500" placeholder="Password yahan likhein">
+            <button onclick="checkPass()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold">Unlock Site</button>
+            <p id="passError" class="text-red-500 text-sm mt-2 hidden">Galat Password!</p>
+        </div>
+    </div>
+
+    <div id="mainContent" class="hidden-all">
+        <div id="loginSection" class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-blue-900">
+                <h2 class="text-2xl font-bold mb-6 text-center text-slate-800 font-serif">RO/ARO EXAM ENGINE</h2>
+                <div class="space-y-4">
+                    <select id="mainSubject" onchange="updateSubParts()" class="w-full p-3 border rounded-lg bg-slate-50 font-semibold"></select>
+                    <div id="subPartContainer" class="hidden">
+                        <select id="subPart" class="w-full p-3 border rounded-lg bg-blue-50 font-semibold border-blue-200"></select>
+                    </div>
+                    <button onclick="startExam()" class="w-full bg-[#003366] text-white py-3 rounded-lg font-bold hover:bg-blue-800 transition shadow-lg">Start Exam</button>
                 </div>
-                <button onclick="startExam()" class="w-full bg-[#003366] text-white py-3 rounded-lg font-bold hover:bg-blue-800 transition shadow-lg">Start Exam</button>
             </div>
         </div>
-    </div>
 
-    <div id="examSection" class="hidden max-w-2xl mx-auto py-8 px-4">
-        <div class="bg-white p-4 rounded-xl shadow-md mb-6 flex justify-between items-center border-b-4 border-blue-600">
-            <div class="text-xl font-mono font-bold text-red-600" id="timerDisplay">60s</div>
-            <div class="text-sm font-bold text-slate-500" id="progressDisplay">Q. 1 / 0</div>
-            <button onclick="confirmSubmit()" class="bg-red-500 text-white px-4 py-1 rounded-lg text-sm font-bold hover:bg-red-600">Submit</button>
-        </div>
-        <div id="questionBox" class="bg-white p-8 rounded-2xl shadow-xl border-t-4 border-blue-900 mb-4"></div>
-        <button onclick="skipQuestion()" class="w-full bg-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-300 transition">Skip Question</button>
-    </div>
-
-    <div id="resultSection" class="hidden max-w-3xl mx-auto py-10 px-4">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl text-center border-t-8 border-blue-900 mb-8">
-            <h2 class="text-3xl font-bold text-slate-800 mb-6">Final Scorecard</h2>
-            <div class="grid grid-cols-3 gap-4 mb-8">
-                <div class="bg-green-50 p-4 rounded-xl border border-green-100"><p class="text-xs uppercase text-green-600 font-bold">Sahi</p><p id="resCorrect" class="text-2xl font-black text-green-700">0</p></div>
-                <div class="bg-red-50 p-4 rounded-xl border border-red-100"><p class="text-xs uppercase text-red-600 font-bold">Galat</p><p id="resWrong" class="text-2xl font-black text-red-700">0</p></div>
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><p class="text-xs uppercase text-slate-600 font-bold">Skipped</p><p id="resSkipped" class="text-2xl font-black text-slate-700">0</p></div>
+        <div id="examSection" class="hidden max-w-2xl mx-auto py-8 px-4">
+            <div class="bg-white p-4 rounded-xl shadow-md mb-6 flex justify-between items-center border-b-4 border-blue-600">
+                <div class="text-xl font-mono font-bold text-red-600" id="timerDisplay">60s</div>
+                <div class="text-sm font-bold text-slate-500" id="progressDisplay">Question 1 of 0</div>
+                <button onclick="confirmSubmit()" class="bg-red-500 text-white px-4 py-1 rounded-lg text-sm font-bold hover:bg-red-600">Submit</button>
             </div>
-            <div class="bg-blue-900 text-white p-4 rounded-2xl mb-6">
-                <p class="text-sm opacity-80">Negative Marking Ke Baad Total Score</p>
-                <p id="resScore" class="text-4xl font-black">0</p>
-            </div>
-            <button onclick="location.reload()" class="text-blue-600 font-bold hover:underline">Restart New Test</button>
+            <div id="questionBox" class="bg-white p-8 rounded-2xl shadow-xl border-t-4 border-blue-900 mb-4"></div>
+            <button onclick="skipQuestion()" class="w-full bg-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-300 transition">Skip Question</button>
         </div>
 
-        <h3 class="text-xl font-bold mb-4 text-slate-800">Detailed Review & Explanations:</h3>
-        <div id="reviewList" class="space-y-6"></div>
+        <div id="resultSection" class="hidden max-w-3xl mx-auto py-10 px-4">
+            <div class="bg-white p-8 rounded-3xl shadow-2xl text-center border-t-8 border-blue-900 mb-8">
+                <h2 class="text-3xl font-bold text-slate-800 mb-6 font-serif">FINAL SCORECARD</h2>
+                <div class="grid grid-cols-3 gap-4 mb-8">
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-100"><p class="text-xs uppercase text-green-600 font-bold">Sahi</p><p id="resCorrect" class="text-2xl font-black text-green-700">0</p></div>
+                    <div class="bg-red-50 p-4 rounded-xl border border-red-100"><p class="text-xs uppercase text-red-600 font-bold">Galat</p><p id="resWrong" class="text-2xl font-black text-red-700">0</p></div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><p class="text-xs uppercase text-slate-600 font-bold">Skipped</p><p id="resSkipped" class="text-2xl font-black text-slate-700">0</p></div>
+                </div>
+                <div class="bg-blue-900 text-white p-4 rounded-2xl mb-6 shadow-inner">
+                    <p class="text-sm opacity-80">Final Score (with -0.33 marking)</p>
+                    <p id="resScore" class="text-4xl font-black">0</p>
+                </div>
+                <button onclick="location.reload()" class="text-blue-600 font-bold hover:underline">Restart Test</button>
+            </div>
+            <h3 class="text-xl font-bold mb-4 text-slate-800">Detailed Review & Explanations:</h3>
+            <div id="reviewList" class="space-y-6"></div>
+        </div>
     </div>
 
     <script>
+        // 1. YAHA APNA PASSWORD SET KAREIN
+        const MY_PASSWORD = '208025'; // Is '123' ko badal kar apna password likhein
+
+        // 2. YAHA APNA CSV LINK DALEIN
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSEOVpeHlnybWhmMduLnfUW96Xw-H2g0NUnFEUxTn8CK0cF4A7Bl8nre39W4fzH0pzg7tPwXJa6cFf6/pub?output=csv';
+
         let fullData = [], filteredQ = [], userAnswers = [], currentIndex = 0, timer, timeLeft = 60;
 
-        Papa.parse(SHEET_URL, {
-            download: true, header: true,
-            complete: (res) => {
-                fullData = res.data.filter(row => row.Question);
-                const subjects = [...new Set(fullData.map(r => r.Subject))];
-                const mainSelect = document.getElementById('mainSubject');
-                mainSelect.innerHTML = '<option value="">-- Subject Chunein --</option>';
-                subjects.forEach(s => { if(s) mainSelect.innerHTML += `<option value="${s}">${s}</option>`; });
+        function checkPass() {
+            const input = document.getElementById('sitePass').value;
+            if(input === MY_PASSWORD) {
+                document.getElementById('passwordOverlay').classList.add('hidden-all');
+                document.getElementById('mainContent').classList.remove('hidden-all');
+                loadData();
+            } else {
+                document.getElementById('passError').classList.remove('hidden');
             }
-        });
+        }
+
+        function loadData() {
+            Papa.parse(SHEET_URL, {
+                download: true, header: true,
+                complete: (res) => {
+                    fullData = res.data.filter(row => row.Question);
+                    const subjects = [...new Set(fullData.map(r => r.Subject))];
+                    const mainSelect = document.getElementById('mainSubject');
+                    mainSelect.innerHTML = '<option value="">-- Subject Chunein --</option>';
+                    subjects.forEach(s => { if(s) mainSelect.innerHTML += `<option value="${s}">${s}</option>`; });
+                }
+            });
+        }
 
         function updateSubParts() {
             const sub = document.getElementById('mainSubject').value;
@@ -120,7 +153,7 @@
             const btns = document.querySelectorAll('.option-btn');
             btns.forEach(b => b.classList.remove('bg-blue-100', 'border-blue-500'));
             btn.classList.add('bg-blue-100', 'border-blue-500');
-            setTimeout(() => { currentIndex++; showQuestion(); }, 500);
+            setTimeout(() => { currentIndex++; showQuestion(); }, 400);
         }
 
         function skipQuestion() {
@@ -140,6 +173,7 @@
             
             let correct = 0, wrong = 0, skipped = 0;
             const reviewContainer = document.getElementById('reviewList');
+            reviewContainer.innerHTML = "";
             
             filteredQ.forEach((q, i) => {
                 const userAns = userAnswers[i];
@@ -160,7 +194,7 @@
                 }
 
                 reviewContainer.innerHTML += `
-                    <div class="p-6 rounded-2xl border-l-8 shadow-sm ${statusClass}">
+                    <div class="p-6 rounded-2xl border-l-8 shadow-sm mb-4 ${statusClass}">
                         <div class="flex justify-between items-start mb-2">
                             <span class="text-xs font-black uppercase tracking-widest">${statusText}</span>
                             <span class="text-slate-400 text-xs">ID: ${q.ID}</span>
