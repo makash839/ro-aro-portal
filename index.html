@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         .hidden-all { display: none !important; }
-        /* Mobile optimization */
         button { touch-action: manipulation; }
     </style>
 </head>
@@ -25,13 +24,13 @@
 
     <div id="mainContent" class="hidden-all">
         <div id="loginSection" class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md border-t-8 border-blue-900">
-                <h2 class="text-xl font-bold mb-6 text-center text-slate-800">RO/ARO EXAM ENGINE</h2>
-                <div id="loader" class="text-center py-4 font-bold text-blue-600">Data Load Ho Raha Hai...</div>
+            <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md border-t-8 border-blue-900 text-center">
+                <h2 class="text-xl font-bold mb-6 text-slate-800">RO/ARO EXAM ENGINE</h2>
+                <div id="loader" class="py-4 font-bold text-blue-600">Data Load Ho Raha Hai...</div>
                 <div id="selectionForm" class="hidden space-y-4">
-                    <select id="mainSubject" onchange="updateSubParts()" class="w-full p-3 border rounded-lg bg-slate-50 font-semibold"></select>
+                    <select id="mainSubject" onchange="updateSubParts()" class="w-full p-3 border rounded-lg bg-slate-50 font-semibold text-left"></select>
                     <div id="subPartContainer" class="hidden">
-                        <select id="subPart" class="w-full p-3 border rounded-lg bg-blue-50 font-semibold border-blue-200"></select>
+                        <select id="subPart" class="w-full p-3 border rounded-lg bg-blue-50 font-semibold border-blue-200 text-left"></select>
                     </div>
                     <button onclick="startExam()" class="w-full bg-[#003366] text-white py-3 rounded-lg font-bold shadow-lg active:bg-blue-800">Start Exam</button>
                 </div>
@@ -52,10 +51,10 @@
             <div class="bg-white p-6 rounded-3xl shadow-xl text-center border-t-8 border-blue-900 mb-6">
                 <h2 class="text-2xl font-bold text-slate-800 mb-4 uppercase">Scorecard</h2>
                 <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="bg-green-50 p-2 rounded-lg border border-green-100 text-sm"><p class="font-bold text-green-600">SAHI: <span id="resCorrect">0</span></p></div>
-                    <div class="bg-red-50 p-2 rounded-lg border border-red-100 text-sm"><p class="font-bold text-red-600">GALAT: <span id="resWrong">0</span></p></div>
-                    <div class="bg-orange-50 p-2 rounded-lg border border-orange-100 text-sm"><p class="font-bold text-orange-600">SKIP: <span id="resSkipped">0</span></p></div>
-                    <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-sm"><p class="font-bold text-slate-600">UNSEEN: <span id="resUnseen">0</span></p></div>
+                    <div class="bg-green-50 p-2 rounded-lg border border-green-100 text-sm font-bold text-green-600">SAHI: <span id="resCorrect">0</span></div>
+                    <div class="bg-red-50 p-2 rounded-lg border border-red-100 text-sm font-bold text-red-600">GALAT: <span id="resWrong">0</span></div>
+                    <div class="bg-orange-50 p-2 rounded-lg border border-orange-100 text-sm font-bold text-orange-600">SKIP: <span id="resSkipped">0</span></div>
+                    <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-sm font-bold text-slate-600">UNSEEN: <span id="resUnseen">0</span></div>
                 </div>
                 <div class="bg-blue-900 text-white p-3 rounded-xl mb-4">
                     <p class="text-xs opacity-80">Final Score</p>
@@ -74,31 +73,43 @@
         let fullData = [], filteredQ = [], userAnswers = [], currentIndex = 0, timer, timeLeft = 60;
 
         function checkPass() {
+            const passInput = document.getElementById('sitePass').value;
             const btn = document.getElementById('unlockBtn');
-            if(document.getElementById('sitePass').value === MY_PASSWORD) {
-                btn.innerText = "Loading...";
+            const error = document.getElementById('passError');
+
+            if(passInput === MY_PASSWORD) {
+                btn.innerText = "Processing...";
                 btn.disabled = true;
+                error.classList.add('hidden');
                 document.getElementById('passwordOverlay').classList.add('hidden-all');
                 document.getElementById('mainContent').classList.remove('hidden-all');
                 loadData();
             } else {
-                document.getElementById('passError').classList.remove('hidden');
+                error.classList.remove('hidden');
             }
         }
 
         function loadData() {
             Papa.parse(SHEET_URL, {
-                download: true, 
+                download: true,
                 header: true,
                 skipEmptyLines: true,
-                complete: (res) => {
-                    fullData = res.data.filter(row => row.Question);
-                    const subjects = [...new Set(fullData.map(r => r.Subject))];
+                complete: (results) => {
+                    fullData = results.data.filter(row => row.Question && row.Question.trim() !== "");
+                    const subjects = [...new Set(fullData.map(r => r.Subject))].filter(Boolean);
+                    
                     const mainSelect = document.getElementById('mainSubject');
-                    mainSelect.innerHTML = '<option value="">-- Subject --</option>';
-                    subjects.forEach(s => { if(s) mainSelect.innerHTML += `<option value="${s}">${s}</option>`; });
-                    document.getElementById('loader').classList.add('hidden');
+                    mainSelect.innerHTML = '<option value="">-- Choose Subject --</option>';
+                    subjects.forEach(s => {
+                        mainSelect.innerHTML += `<option value="${s}">${s}</option>`;
+                    });
+
+                    document.getElementById('loader').classList.add('hidden-all');
                     document.getElementById('selectionForm').classList.remove('hidden');
+                },
+                error: (err) => {
+                    alert("Sheet load nahi ho payi. Network check karein.");
+                    console.error(err);
                 }
             });
         }
@@ -107,13 +118,145 @@
             const sub = document.getElementById('mainSubject').value;
             const subPartSelect = document.getElementById('subPart');
             const container = document.getElementById('subPartContainer');
+            
             subPartSelect.innerHTML = '';
-            const parts = [...new Set(fullData.filter(r => r.Subject === sub).map(r => r['Sub-Subject']))];
-            if(parts.length > 0 && parts[0] !== "") {
+            const parts = [...new Set(fullData.filter(r => r.Subject === sub).map(r => r['Sub-Subject']))].filter(p => p && p.trim() !== "");
+            
+            if(parts.length > 0) {
                 container.classList.remove('hidden');
-                parts.forEach(p => { if(p) subPartSelect.innerHTML += `<option value="${p}">${p}</option>`; });
-            } else container.classList.add('hidden');
+                parts.forEach(p => {
+                    subPartSelect.innerHTML += `<option value="${p}">${p}</option>`;
+                });
+            } else {
+                container.classList.add('hidden');
+            }
         }
 
         function startExam() {
             const s = document.getElementById('mainSubject').value;
+            const sp = document.getElementById('subPart').value;
+            if(!s) { alert("Pehle Subject chunein!"); return; }
+
+            filteredQ = fullData.filter(r => r.Subject === s && (sp === "" || r['Sub-Subject'] === sp));
+            userAnswers = new Array(filteredQ.length).fill("unattempted");
+            currentIndex = 0;
+            
+            document.getElementById('loginSection').classList.add('hidden-all');
+            document.getElementById('examSection').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if(currentIndex >= filteredQ.length) return endTest();
+            
+            clearInterval(timer);
+            timeLeft = 60;
+            document.getElementById('timerDisplay').innerText = `${timeLeft}s`;
+            document.getElementById('progressDisplay').innerText = `Q. ${currentIndex + 1} / ${filteredQ.length}`;
+            
+            const q = filteredQ[currentIndex];
+            const container = document.getElementById('questionBox');
+            
+            container.innerHTML = `
+                <p class="font-bold text-lg mb-4 text-slate-800">${q.Question}</p>
+                <div class="grid gap-2 text-left">
+                    ${['A','B','C','D'].map((opt, i) => `
+                        <button onclick="selectOption('${i+1}', this)" class="text-left p-3 border-2 rounded-xl border-slate-200 font-medium active:bg-blue-100 option-btn flex items-center">
+                            <span class="inline-block w-6 h-6 text-center leading-6 bg-slate-100 rounded-full mr-3 text-xs font-bold">${opt}</span>
+                            <span>${q['Option ' + opt]}</span>
+                        </button>`).join('')}
+                </div>`;
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerDisplay').innerText = `${timeLeft}s`;
+                if(timeLeft <= 0) skipQuestion();
+            }, 1000);
+        }
+
+        function selectOption(val, btn) {
+            userAnswers[currentIndex] = val;
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(b => b.classList.remove('bg-blue-50', 'border-blue-500'));
+            btn.classList.add('bg-blue-50', 'border-blue-500');
+            setTimeout(() => { currentIndex++; showQuestion(); }, 300);
+        }
+
+        function skipQuestion() {
+            userAnswers[currentIndex] = "skipped";
+            currentIndex++;
+            showQuestion();
+        }
+
+        function confirmSubmit() { if(confirm("Submit Test?")) endTest(); }
+
+        function endTest() {
+            clearInterval(timer);
+            document.getElementById('examSection').classList.add('hidden-all');
+            document.getElementById('resultSection').classList.remove('hidden');
+            
+            let correct = 0, wrong = 0, skipped = 0, unseen = 0;
+            let resultsList = [];
+
+            filteredQ.forEach((q, i) => {
+                const ans = userAnswers[i];
+                let status = (ans == q.Answer) ? "CORRECT" : (ans == "skipped" ? "SKIPPED" : (ans == "unattempted" ? "UNATTEMPTED" : "WRONG"));
+                
+                if(status == "CORRECT") correct++;
+                else if(status == "WRONG") wrong++;
+                else if(status == "SKIPPED") skipped++;
+                else unseen++;
+
+                resultsList.push({ q, ans, status, originalNum: i + 1 });
+            });
+
+            // SORTING: WRONG sabse pehle dikhane ke liye
+            resultsList.sort((a, b) => {
+                const priority = { "WRONG": 0, "UNATTEMPTED": 1, "SKIPPED": 2, "CORRECT": 3 };
+                return priority[a.status] - priority[b.status];
+            });
+
+            const reviewContainer = document.getElementById('reviewList');
+            reviewContainer.innerHTML = "";
+
+            resultsList.forEach(item => {
+                const { q, ans, status, originalNum } = item;
+                let borderColor = (status == "CORRECT") ? "border-green-500" : (status == "WRONG" ? "border-red-500" : "border-slate-300");
+                let statusColor = (status == "CORRECT") ? "text-green-600" : (status == "WRONG" ? "text-red-600" : "text-slate-500");
+                
+                const letters = ['A', 'B', 'C', 'D'];
+                const correctLetter = letters[parseInt(q.Answer) - 1];
+
+                reviewContainer.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl border-l-8 ${borderColor} shadow-md mb-6 text-left">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[11px] font-black uppercase tracking-wider ${statusColor}">${status}</span>
+                            <span class="text-[11px] font-bold text-slate-400">Q. ${originalNum}</span>
+                        </div>
+                        <p class="font-bold text-slate-800 text-base mb-4">${q.Question}</p>
+                        <div class="grid gap-2 mb-4 text-sm">
+                            ${letters.map((L, idx) => {
+                                let optVal = idx + 1;
+                                let bgClass = "bg-slate-50 border-slate-100";
+                                if(optVal == q.Answer) bgClass = "bg-green-50 border-green-200 text-green-800 font-bold";
+                                if(ans == optVal && optVal != q.Answer) bgClass = "bg-red-50 border-red-200 text-red-700";
+                                return `<div class="p-3 border rounded-xl ${bgClass}">${L}. ${q['Option ' + L]}</div>`;
+                            }).join('')}
+                        </div>
+                        <p class="text-xs font-bold text-green-700 mb-3 text-left">Sahi Uttar: ${q.Answer} (${correctLetter})</p>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-600 leading-relaxed">
+                            <strong class="text-slate-800 block mb-1 underline">Explanation:</strong>
+                            ${q.Explanation || 'Vyakhya uplabdha nahi hai.'}
+                        </div>
+                    </div>`;
+            });
+
+            document.getElementById('resCorrect').innerText = correct;
+            document.getElementById('resWrong').innerText = wrong;
+            document.getElementById('resSkipped').innerText = skipped;
+            document.getElementById('resUnseen').innerText = unseen;
+            document.getElementById('resScore').innerText = (correct - (wrong * 0.33)).toFixed(2);
+        }
+    </script>
+</body>
+</html>
