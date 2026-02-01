@@ -172,32 +172,55 @@
             document.getElementById('resultSection').classList.remove('hidden');
             
             let correct = 0, wrong = 0, skipped = 0, unseen = 0;
-            let wrongItems = [], unseenItems = [], skippedItems = [], correctItems = [];
-
-            filteredQ.forEach((q, i) => {
-                const ans = userAnswers[i];
-                if(ans === "unattempted") { unseen++; unseenItems.push({q, ans}); }
-                else if(ans === "skipped") { skipped++; skippedItems.push({q, ans}); }
-                else if(ans == q.Answer) { correct++; correctItems.push({q, ans}); }
-                else { wrong++; wrongItems.push({q, ans}); }
-            });
-
             const reviewContainer = document.getElementById('reviewList');
             reviewContainer.innerHTML = "";
 
-            [...wrongItems, ...unseenItems, ...skippedItems, ...correctItems].forEach(item => {
-                const { q, ans } = item;
+            filteredQ.forEach((q, i) => {
+                const ans = userAnswers[i];
                 let status = (ans == q.Answer) ? "CORRECT" : (ans == "skipped" ? "SKIPPED" : (ans == "unattempted" ? "UNATTEMPTED" : "WRONG"));
-                let color = "border-slate-300 bg-slate-50";
-                if(status == "CORRECT") color = "border-green-500 bg-green-50";
-                if(status == "WRONG") color = "border-red-500 bg-red-50";
+                
+                if(status == "CORRECT") correct++;
+                else if(status == "WRONG") wrong++;
+                else if(status == "SKIPPED") skipped++;
+                else unseen++;
+
+                let borderColor = "border-slate-300";
+                let statusColor = "text-slate-500";
+                if(status == "CORRECT") { borderColor = "border-green-500"; statusColor = "text-green-600"; }
+                if(status == "WRONG") { borderColor = "border-red-500"; statusColor = "text-red-600"; }
+
+                const letters = ['A', 'B', 'C', 'D'];
+                const correctLetter = letters[parseInt(q.Answer) - 1];
 
                 reviewContainer.innerHTML += `
-                    <div class="p-4 rounded-xl border-l-4 shadow-sm mb-3 ${color}">
-                        <span class="text-[10px] font-black uppercase">${status}</span>
-                        <p class="font-bold text-slate-800 text-sm mt-1">${q.Question}</p>
-                        <p class="text-xs mt-2">Sahi: <span class="text-green-700 font-bold">${q.Answer}</span></p>
-                        <div class="bg-white p-2 mt-2 rounded border text-xs text-slate-600">${q.Explanation}</div>
+                    <div class="bg-white p-5 rounded-2xl border-l-8 ${borderColor} shadow-md mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[11px] font-black uppercase tracking-wider ${statusColor}">${status}</span>
+                            <span class="text-[11px] font-bold text-slate-400 text-right">Q. ${i+1}</span>
+                        </div>
+                        
+                        <p class="font-bold text-slate-800 text-base mb-4">${q.Question}</p>
+                        
+                        <div class="grid gap-2 mb-4">
+                            ${letters.map((L, idx) => {
+                                let optNum = idx + 1;
+                                let optClass = "border-slate-100 bg-slate-50 text-slate-600";
+                                
+                                if (ans == optNum && optNum != q.Answer) optClass = "border-red-200 bg-red-50 text-red-700";
+                                if (optNum == q.Answer) optClass = "border-green-200 bg-green-50 text-green-700 font-bold";
+
+                                return `<div class="text-sm p-3 border rounded-xl ${optClass}">
+                                    <span class="font-bold mr-1">${L}.</span> ${q['Option ' + L]}
+                                </div>`;
+                            }).join('')}
+                        </div>
+
+                        <p class="text-xs font-bold text-green-700 mb-3">Sahi Uttar: ${q.Answer} (${correctLetter})</p>
+                        
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-600 leading-relaxed">
+                            <strong class="text-slate-800 block mb-1">Explanation:</strong>
+                            ${q.Explanation || 'No explanation available.'}
+                        </div>
                     </div>`;
             });
 
