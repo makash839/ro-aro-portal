@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RO/ARO Focus Portal</title>
+    <title>RO/ARO Smart Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>.hidden-all { display: none !important; }</style>
@@ -21,14 +21,14 @@
 
     <div id="mainContent" class="hidden-all">
         <div id="loginSection" class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-blue-900">
-                <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">RO/ARO EXAM ENGINE</h2>
+            <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-blue-900 text-center">
+                <h2 class="text-2xl font-bold mb-6 text-slate-800">RO/ARO EXAM ENGINE</h2>
                 <div class="space-y-4">
                     <select id="mainSubject" onchange="updateSubParts()" class="w-full p-3 border rounded-lg bg-slate-50 font-semibold"></select>
                     <div id="subPartContainer" class="hidden">
                         <select id="subPart" class="w-full p-3 border rounded-lg bg-blue-50 font-semibold border-blue-200"></select>
                     </div>
-                    <button onclick="startExam()" class="w-full bg-[#003366] text-white py-3 rounded-lg font-bold hover:bg-blue-800 transition shadow-lg">Start Exam</button>
+                    <button onclick="startExam()" class="w-full bg-[#003366] text-white py-3 rounded-lg font-bold hover:bg-blue-800 shadow-lg">Start Exam</button>
                 </div>
             </div>
         </div>
@@ -46,25 +46,27 @@
         <div id="resultSection" class="hidden max-w-3xl mx-auto py-10 px-4">
             <div class="bg-white p-8 rounded-3xl shadow-2xl text-center border-t-8 border-blue-900 mb-8">
                 <h2 class="text-3xl font-bold text-slate-800 mb-6 font-serif uppercase">Final Scorecard</h2>
-                <div class="grid grid-cols-3 gap-4 mb-8">
-                    <div class="bg-green-50 p-4 rounded-xl border border-green-100"><p class="text-xs font-bold text-green-600">SAHI</p><p id="resCorrect" class="text-2xl font-black text-green-700">0</p></div>
-                    <div class="bg-red-50 p-4 rounded-xl border border-red-100"><p class="text-xs font-bold text-red-600">GALAT</p><p id="resWrong" class="text-2xl font-black text-red-700">0</p></div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><p class="text-xs font-bold text-slate-600">SKIPPED</p><p id="resSkipped" class="text-2xl font-black text-slate-700">0</p></div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 text-center">
+                    <div class="bg-green-50 p-3 rounded-xl border border-green-100"><p class="text-[10px] font-bold text-green-600">SAHI</p><p id="resCorrect" class="text-xl font-black text-green-700">0</p></div>
+                    <div class="bg-red-50 p-3 rounded-xl border border-red-100"><p class="text-[10px] font-bold text-red-600">GALAT</p><p id="resWrong" class="text-xl font-black text-red-700">0</p></div>
+                    <div class="bg-orange-50 p-3 rounded-xl border border-orange-100"><p class="text-[10px] font-bold text-orange-600">SKIP</p><p id="resSkipped" class="text-xl font-black text-orange-700">0</p></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100"><p class="text-[10px] font-bold text-slate-600">UNATTEMPT</p><p id="resUnseen" class="text-xl font-black text-slate-700">0</p></div>
                 </div>
                 <div class="bg-blue-900 text-white p-4 rounded-2xl mb-6">
-                    <p class="text-sm opacity-80 italic">Score (with -0.33 marking)</p>
+                    <p class="text-sm opacity-80">Final Score (-0.33 marking)</p>
                     <p id="resScore" class="text-4xl font-black">0</p>
                 </div>
-                <button onclick="location.reload()" class="text-blue-600 font-bold hover:underline">Restart New Test</button>
+                <button onclick="location.reload()" class="text-blue-600 font-bold hover:underline">Restart Test</button>
             </div>
-            <h3 class="text-xl font-bold mb-4 text-slate-800 border-l-4 border-red-500 pl-3">Review (Galat Sawal Pehle):</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-800 border-l-4 border-red-500 pl-3">Review Panel:</h3>
             <div id="reviewList" class="space-y-6"></div>
         </div>
     </div>
 
     <script>
-        const MY_PASSWORD = '208025'; // Apna password yahan change karein
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSEOVpeHlnybWhmMduLnfUW96Xw-H2g0NUnFEUxTn8CK0cF4A7Bl8nre39W4fzH0pzg7tPwXJa6cFf6/pub?output=csv';
+        const MY_PASSWORD = '208025'; 
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSEOVpeHlnybWhmMduLnfUW96 {REMAINING_LINK_PART} output=csv'; 
+        // Note: Please use your full CSV link here as before
 
         let fullData = [], filteredQ = [], userAnswers = [], currentIndex = 0, timer, timeLeft = 60;
 
@@ -77,7 +79,7 @@
         }
 
         function loadData() {
-            Papa.parse(SHEET_URL, {
+            Papa.parse('https://docs.google.com/spreadsheets/d/e/2PACX-1vSEOVpeHlnybWhmMduLnfUW96Xw-H2g0NUnFEUxTn8CK0cF4A7Bl8nre39W4fzH0pzg7tPwXJa6cFf6/pub?output=csv', {
                 download: true, header: true,
                 complete: (res) => {
                     fullData = res.data.filter(row => row.Question);
@@ -104,9 +106,9 @@
         function startExam() {
             const s = document.getElementById('mainSubject').value;
             const sp = document.getElementById('subPart').value;
-            if(!s) return alert("Pehle Subject chunein!");
+            if(!s) return alert("Pehle Subject!");
             filteredQ = fullData.filter(r => r.Subject === s && (sp === "" || r['Sub-Subject'] === sp));
-            userAnswers = new Array(filteredQ.length).fill(null);
+            userAnswers = new Array(filteredQ.length).fill("unattempted");
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('examSection').classList.remove('hidden');
             showQuestion();
@@ -120,7 +122,7 @@
             document.getElementById('progressDisplay').innerText = `Q. ${currentIndex + 1} / ${filteredQ.length}`;
             const q = filteredQ[currentIndex];
             const container = document.getElementById('questionBox');
-            container.innerHTML = `<p class="font-bold text-xl mb-6 text-slate-800 leading-tight">${q.Question}</p>
+            container.innerHTML = `<p class="font-bold text-xl mb-6 text-slate-800">${q.Question}</p>
                 <div class="grid gap-3">
                     ${['A','B','C','D'].map((opt, i) => `
                         <button onclick="selectOption('${i+1}', this)" class="text-left p-4 border-2 rounded-xl hover:bg-blue-50 border-slate-200 font-medium option-btn">
@@ -155,13 +157,14 @@
             document.getElementById('examSection').classList.add('hidden');
             document.getElementById('resultSection').classList.remove('hidden');
             
-            let correct = 0, wrong = 0, skipped = 0;
-            let wrongItems = [], skippedItems = [], correctItems = [];
+            let correct = 0, wrong = 0, skipped = 0, unseen = 0;
+            let wrongItems = [], skippedItems = [], unseenItems = [], correctItems = [];
 
             filteredQ.forEach((q, i) => {
                 const ans = userAnswers[i];
                 let item = { q, ans };
-                if(ans === "skipped" || ans === null) { skipped++; skippedItems.push(item); }
+                if(ans === "unattempted") { unseen++; unseenItems.push(item); }
+                else if(ans === "skipped") { skipped++; skippedItems.push(item); }
                 else if(ans == q.Answer) { correct++; correctItems.push(item); }
                 else { wrong++; wrongItems.push(item); }
             });
@@ -169,19 +172,22 @@
             const reviewContainer = document.getElementById('reviewList');
             reviewContainer.innerHTML = "";
 
-            // Priority Logic: Pehle Wrong, phir Skipped, phir Correct
-            [...wrongItems, ...skippedItems, ...correctItems].forEach(item => {
+            // Priority: Wrong > Unattempted > Skipped > Correct
+            [...wrongItems, ...unseenItems, ...skippedItems, ...correctItems].forEach(item => {
                 const { q, ans } = item;
-                let status = ans == q.Answer ? "CORRECT" : (ans == "skipped" ? "SKIPPED" : "WRONG");
-                let color = status == "CORRECT" ? "border-green-500 bg-green-50 text-green-600" : (status == "SKIPPED" ? "border-slate-300 bg-slate-50 text-slate-600" : "border-red-500 bg-red-50 text-red-600");
+                let status = (ans == q.Answer) ? "CORRECT" : (ans == "skipped" ? "SKIPPED" : (ans == "unattempted" ? "UNATTEMPTED" : "WRONG"));
+                let color = "border-slate-300 bg-slate-50 text-slate-600";
+                if(status == "CORRECT") color = "border-green-500 bg-green-50 text-green-600";
+                if(status == "WRONG") color = "border-red-500 bg-red-50 text-red-600";
+                if(status == "SKIPPED") color = "border-orange-400 bg-orange-50 text-orange-600";
 
                 reviewContainer.innerHTML += `
                     <div class="p-6 rounded-2xl border-l-8 shadow-sm mb-4 ${color.split(' ').slice(0,2).join(' ')}">
                         <span class="text-xs font-black uppercase tracking-widest ${color.split(' ')[2]}">${status}</span>
                         <p class="font-bold text-slate-800 mt-2 mb-4">${q.Question}</p>
                         <div class="text-sm space-y-1 mb-4">
-                            <p><strong>Aapka Jawab:</strong> ${ans === "skipped" ? "Nahi Diya" : ans}</p>
-                            <p class="text-green-700"><strong>Sahi Jawab:</strong> ${q.Answer}</p>
+                            <p><strong>Aapka Jawab:</strong> ${ans === "unattempted" ? "Dekha Nahi" : (ans === "skipped" ? "Skip Kiya" : ans)}</p>
+                            <p class="text-green-700 font-bold"><strong>Sahi Jawab:</strong> ${q.Answer}</p>
                         </div>
                         <div class="bg-white p-4 rounded-xl text-sm border border-slate-200">
                             <p class="font-bold text-blue-900 mb-1">Explanation:</p>${q.Explanation}
@@ -192,6 +198,7 @@
             document.getElementById('resCorrect').innerText = correct;
             document.getElementById('resWrong').innerText = wrong;
             document.getElementById('resSkipped').innerText = skipped;
+            document.getElementById('resUnseen').innerText = unseen;
             document.getElementById('resScore').innerText = (correct - (wrong * 0.33)).toFixed(2);
         }
     </script>
