@@ -3,21 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RO/ARO Protected Portal</title>
+    <title>RO/ARO Focus Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <style>
-        .hidden-all { display: none !important; }
-    </style>
+    <style>.hidden-all { display: none !important; }</style>
 </head>
 <body class="bg-slate-50 font-sans">
 
     <div id="passwordOverlay" class="fixed inset-0 bg-blue-900 flex items-center justify-center z-[100]">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
             <h2 class="text-xl font-bold mb-4">Security Check</h2>
-            <p class="text-sm text-gray-500 mb-4">Aage badhne ke liye password dalein</p>
-            <input type="password" id="sitePass" class="w-full p-3 border rounded-lg mb-4 text-center focus:outline-blue-500" placeholder="Password yahan likhein">
-            <button onclick="checkPass()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold">Unlock Site</button>
+            <input type="password" id="sitePass" class="w-full p-3 border rounded-lg mb-4 text-center" placeholder="Password Dalein">
+            <button onclick="checkPass()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold">Unlock</button>
             <p id="passError" class="text-red-500 text-sm mt-2 hidden">Galat Password!</p>
         </div>
     </div>
@@ -25,7 +22,7 @@
     <div id="mainContent" class="hidden-all">
         <div id="loginSection" class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-blue-900">
-                <h2 class="text-2xl font-bold mb-6 text-center text-slate-800 font-serif">RO/ARO EXAM ENGINE</h2>
+                <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">RO/ARO EXAM ENGINE</h2>
                 <div class="space-y-4">
                     <select id="mainSubject" onchange="updateSubParts()" class="w-full p-3 border rounded-lg bg-slate-50 font-semibold"></select>
                     <div id="subPartContainer" class="hidden">
@@ -39,50 +36,44 @@
         <div id="examSection" class="hidden max-w-2xl mx-auto py-8 px-4">
             <div class="bg-white p-4 rounded-xl shadow-md mb-6 flex justify-between items-center border-b-4 border-blue-600">
                 <div class="text-xl font-mono font-bold text-red-600" id="timerDisplay">60s</div>
-                <div class="text-sm font-bold text-slate-500" id="progressDisplay">Question 1 of 0</div>
-                <button onclick="confirmSubmit()" class="bg-red-500 text-white px-4 py-1 rounded-lg text-sm font-bold hover:bg-red-600">Submit</button>
+                <div class="text-sm font-bold text-slate-500" id="progressDisplay">Q. 1 / 0</div>
+                <button onclick="confirmSubmit()" class="bg-red-500 text-white px-4 py-1 rounded-lg text-sm font-bold">Submit</button>
             </div>
             <div id="questionBox" class="bg-white p-8 rounded-2xl shadow-xl border-t-4 border-blue-900 mb-4"></div>
-            <button onclick="skipQuestion()" class="w-full bg-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-300 transition">Skip Question</button>
+            <button onclick="skipQuestion()" class="w-full bg-slate-200 text-slate-700 py-3 rounded-xl font-bold">Skip Question</button>
         </div>
 
         <div id="resultSection" class="hidden max-w-3xl mx-auto py-10 px-4">
             <div class="bg-white p-8 rounded-3xl shadow-2xl text-center border-t-8 border-blue-900 mb-8">
-                <h2 class="text-3xl font-bold text-slate-800 mb-6 font-serif">FINAL SCORECARD</h2>
+                <h2 class="text-3xl font-bold text-slate-800 mb-6 font-serif uppercase">Final Scorecard</h2>
                 <div class="grid grid-cols-3 gap-4 mb-8">
-                    <div class="bg-green-50 p-4 rounded-xl border border-green-100"><p class="text-xs uppercase text-green-600 font-bold">Sahi</p><p id="resCorrect" class="text-2xl font-black text-green-700">0</p></div>
-                    <div class="bg-red-50 p-4 rounded-xl border border-red-100"><p class="text-xs uppercase text-red-600 font-bold">Galat</p><p id="resWrong" class="text-2xl font-black text-red-700">0</p></div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><p class="text-xs uppercase text-slate-600 font-bold">Skipped</p><p id="resSkipped" class="text-2xl font-black text-slate-700">0</p></div>
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-100"><p class="text-xs font-bold text-green-600">SAHI</p><p id="resCorrect" class="text-2xl font-black text-green-700">0</p></div>
+                    <div class="bg-red-50 p-4 rounded-xl border border-red-100"><p class="text-xs font-bold text-red-600">GALAT</p><p id="resWrong" class="text-2xl font-black text-red-700">0</p></div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><p class="text-xs font-bold text-slate-600">SKIPPED</p><p id="resSkipped" class="text-2xl font-black text-slate-700">0</p></div>
                 </div>
-                <div class="bg-blue-900 text-white p-4 rounded-2xl mb-6 shadow-inner">
-                    <p class="text-sm opacity-80">Final Score (with -0.33 marking)</p>
+                <div class="bg-blue-900 text-white p-4 rounded-2xl mb-6">
+                    <p class="text-sm opacity-80 italic">Score (with -0.33 marking)</p>
                     <p id="resScore" class="text-4xl font-black">0</p>
                 </div>
-                <button onclick="location.reload()" class="text-blue-600 font-bold hover:underline">Restart Test</button>
+                <button onclick="location.reload()" class="text-blue-600 font-bold hover:underline">Restart New Test</button>
             </div>
-            <h3 class="text-xl font-bold mb-4 text-slate-800">Detailed Review & Explanations:</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-800 border-l-4 border-red-500 pl-3">Review (Galat Sawal Pehle):</h3>
             <div id="reviewList" class="space-y-6"></div>
         </div>
     </div>
 
     <script>
-        // 1. YAHA APNA PASSWORD SET KAREIN
-        const MY_PASSWORD = '208025'; // Is '123' ko badal kar apna password likhein
-
-        // 2. YAHA APNA CSV LINK DALEIN
+        const MY_PASSWORD = '208025'; // Apna password yahan change karein
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSEOVpeHlnybWhmMduLnfUW96Xw-H2g0NUnFEUxTn8CK0cF4A7Bl8nre39W4fzH0pzg7tPwXJa6cFf6/pub?output=csv';
 
         let fullData = [], filteredQ = [], userAnswers = [], currentIndex = 0, timer, timeLeft = 60;
 
         function checkPass() {
-            const input = document.getElementById('sitePass').value;
-            if(input === MY_PASSWORD) {
+            if(document.getElementById('sitePass').value === MY_PASSWORD) {
                 document.getElementById('passwordOverlay').classList.add('hidden-all');
                 document.getElementById('mainContent').classList.remove('hidden-all');
                 loadData();
-            } else {
-                document.getElementById('passError').classList.remove('hidden');
-            }
+            } else document.getElementById('passError').classList.remove('hidden');
         }
 
         function loadData() {
@@ -107,7 +98,7 @@
             if(parts.length > 0 && parts[0] !== "") {
                 container.classList.remove('hidden');
                 parts.forEach(p => { if(p) subPartSelect.innerHTML += `<option value="${p}">${p}</option>`; });
-            } else { container.classList.add('hidden'); }
+            } else container.classList.add('hidden');
         }
 
         function startExam() {
@@ -126,25 +117,20 @@
             clearInterval(timer);
             timeLeft = 60;
             document.getElementById('timerDisplay').innerText = `${timeLeft}s`;
-            document.getElementById('progressDisplay').innerText = `Question ${currentIndex + 1} of ${filteredQ.length}`;
-            
+            document.getElementById('progressDisplay').innerText = `Q. ${currentIndex + 1} / ${filteredQ.length}`;
             const q = filteredQ[currentIndex];
             const container = document.getElementById('questionBox');
-            container.innerHTML = `
-                <p class="font-bold text-xl mb-6 text-slate-800 leading-tight">${q.Question}</p>
+            container.innerHTML = `<p class="font-bold text-xl mb-6 text-slate-800 leading-tight">${q.Question}</p>
                 <div class="grid gap-3">
                     ${['A','B','C','D'].map((opt, i) => `
-                        <button onclick="selectOption('${i+1}', this)" 
-                        class="text-left p-4 border-2 rounded-xl hover:bg-blue-50 transition border-slate-200 font-medium option-btn">
+                        <button onclick="selectOption('${i+1}', this)" class="text-left p-4 border-2 rounded-xl hover:bg-blue-50 border-slate-200 font-medium option-btn">
                             <span class="inline-block w-8 h-8 text-center leading-8 bg-slate-100 rounded-full mr-3 text-sm font-bold">${opt}</span> ${q['Option ' + opt]}
-                        </button>
-                    `).join('')}
+                        </button>`).join('')}
                 </div>`;
-            
             timer = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timerDisplay').innerText = `${timeLeft}s`;
-                if(timeLeft <= 0) { skipQuestion(); }
+                if(timeLeft <= 0) skipQuestion();
             }, 1000);
         }
 
@@ -162,9 +148,7 @@
             showQuestion();
         }
 
-        function confirmSubmit() {
-            if(confirm("Kya aap test submit karna chahte hain?")) endTest();
-        }
+        function confirmSubmit() { if(confirm("Submit test?")) endTest(); }
 
         function endTest() {
             clearInterval(timer);
@@ -172,41 +156,35 @@
             document.getElementById('resultSection').classList.remove('hidden');
             
             let correct = 0, wrong = 0, skipped = 0;
+            let wrongItems = [], skippedItems = [], correctItems = [];
+
+            filteredQ.forEach((q, i) => {
+                const ans = userAnswers[i];
+                let item = { q, ans };
+                if(ans === "skipped" || ans === null) { skipped++; skippedItems.push(item); }
+                else if(ans == q.Answer) { correct++; correctItems.push(item); }
+                else { wrong++; wrongItems.push(item); }
+            });
+
             const reviewContainer = document.getElementById('reviewList');
             reviewContainer.innerHTML = "";
-            
-            filteredQ.forEach((q, i) => {
-                const userAns = userAnswers[i];
-                let statusClass = "", statusText = "";
-                
-                if(userAns === "skipped" || userAns === null) {
-                    skipped++;
-                    statusClass = "border-slate-300 bg-slate-50";
-                    statusText = "SKIPPED";
-                } else if(userAns == q.Answer) {
-                    correct++;
-                    statusClass = "border-green-500 bg-green-50";
-                    statusText = "CORRECT";
-                } else {
-                    wrong++;
-                    statusClass = "border-red-500 bg-red-50";
-                    statusText = "WRONG";
-                }
+
+            // Priority Logic: Pehle Wrong, phir Skipped, phir Correct
+            [...wrongItems, ...skippedItems, ...correctItems].forEach(item => {
+                const { q, ans } = item;
+                let status = ans == q.Answer ? "CORRECT" : (ans == "skipped" ? "SKIPPED" : "WRONG");
+                let color = status == "CORRECT" ? "border-green-500 bg-green-50 text-green-600" : (status == "SKIPPED" ? "border-slate-300 bg-slate-50 text-slate-600" : "border-red-500 bg-red-50 text-red-600");
 
                 reviewContainer.innerHTML += `
-                    <div class="p-6 rounded-2xl border-l-8 shadow-sm mb-4 ${statusClass}">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-xs font-black uppercase tracking-widest">${statusText}</span>
-                            <span class="text-slate-400 text-xs">ID: ${q.ID}</span>
-                        </div>
-                        <p class="font-bold text-slate-800 mb-4">${q.Question}</p>
+                    <div class="p-6 rounded-2xl border-l-8 shadow-sm mb-4 ${color.split(' ').slice(0,2).join(' ')}">
+                        <span class="text-xs font-black uppercase tracking-widest ${color.split(' ')[2]}">${status}</span>
+                        <p class="font-bold text-slate-800 mt-2 mb-4">${q.Question}</p>
                         <div class="text-sm space-y-1 mb-4">
-                            <p><strong>Aapka Jawab:</strong> ${userAns === "skipped" ? "Nahi Diya" : userAns}</p>
+                            <p><strong>Aapka Jawab:</strong> ${ans === "skipped" ? "Nahi Diya" : ans}</p>
                             <p class="text-green-700"><strong>Sahi Jawab:</strong> ${q.Answer}</p>
                         </div>
                         <div class="bg-white p-4 rounded-xl text-sm border border-slate-200">
-                            <p class="font-bold text-blue-900 mb-1">Explanation:</p>
-                            ${q.Explanation}
+                            <p class="font-bold text-blue-900 mb-1">Explanation:</p>${q.Explanation}
                         </div>
                     </div>`;
             });
